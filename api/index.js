@@ -847,9 +847,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: '服务器内部错误' });
 });
 
+// ==================== 静态文件与SPA路由回退 ====================
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// SPA 路由回退：将所有非 /api/ 的请求交给 index.html 处理
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
 // ==================== 本地启动 ====================
 if (require.main === module) {
-  app.use(express.static(path.join(__dirname, '..', 'public')));
   const PORT = process.env.PORT || 3110;
   app.listen(PORT, () => {
     console.log('✅ 隐患排查管理系统已启动');
